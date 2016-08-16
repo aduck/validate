@@ -10,7 +10,7 @@
 		for(var i=0,len=arr.length;i<len;i++){
 			var item=document.getElementById(arr[i]['id']),
 				val=typeof String.prototype.trim !='undefined' ? item.value.trim() : item.value.replace(/(^\s*)|(\s*$)/g,""),
-				rules=arr[i]['rules'],
+				rules=arr[i]['items'],
 				title=arr[i]['title'],
 				res=check(val,title,rules);
 			if(res.error) return res;
@@ -23,18 +23,19 @@
 	*/
 	function check(val,title,rules){
 		for(var i=0,len=rules.length;i<len;i++){
-			var rule=rules[i];
+			var rule=rules[i]['rule'];
+			var msg=rules[i]['err'] || '不符合规则'
 			if(rule=='required'){
 				if(val==''){
-					return {"error":1,"title":title,"msg":"不能为空"};
+					return {"error":1,"title":title,"msg":msg};
 				}
 			}else if(rule instanceof RegExp){  // 正则
 				if(!rule.test(val)){
-					return {"error":1,"title":title,"msg":"不符合规则"};
+					return {"error":1,"title":title,"msg":msg};
 				}
 			}else if(typeof rule=='function'){  // 函数，务必返回值
 				if(!rule(val)){
-					return {"error":1,"title":title,"msg":"不符合规则"};
+					return {"error":1,"title":title,"msg":msg};
 				}
 			}	
 		}
@@ -64,17 +65,16 @@
 				e.returnValue=false;
 			}
 			var res=checkAll(checkArr);
-			if(!res.error){
-				if(success) success();
+			if(!res.error && success){
 				form.submit();
 			}else{
-				fall(res);
+				fall(res)
 			}
 		});
 		for(var i=0;i<checkArr.length;i++){
 			var item=document.getElementById(checkArr[i].id),
 				title=checkArr[i].title,
-				rules=checkArr[i].rules,
+				rules=checkArr[i].items,
 				val,res;
 			(function(item,title,rules){
 				addEvent(item,'blur',function(e){
@@ -82,6 +82,8 @@
 					res=check(val,title,rules);
 					if(res.error){
 						fall(res);
+					}else{
+						success()
 					}
 				})
 			})(item,title,rules);

@@ -8,24 +8,25 @@
 	<form action="" id="mForm">
 		账号<input type="text" id="username" name="username"><br>
 		密码<input type="password" id="password" name="password"><br>
-		<button>提交</button>
+		<span id="msg"></span>
+		<input type="submit" value="提交">
 	</form>
 	<script src="validate.js"></script>
 	<script>
 		var checkArr=[
-			{"id":"username","title":"用户名",rules:['required',function(val){
+			{"id":"username","title":"用户名","items":[{rule:'required'},{rule:function(val){
 				return val.length>6;
-			}]},
-			{"id":"password","title":"密码",rules:['required']}
+			},err:'小于6个字'}]},
+			{"id":"password","title":"密码","items":[{rule:'required',err:'不能为空'}]}
 		]
 		validate.init({
 			formId:'mForm',
 			checkArr:checkArr,
 			success:function(){
-				alert('success')
+				document.getElementById('msg').innerHTML=''
 			},
 			fall:function(res){
-				alert(res.title+res.msg)
+				document.getElementById('msg').innerHTML=res.title+res.msg
 			}
 		})
 	</script>
