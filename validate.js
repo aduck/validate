@@ -8,40 +8,46 @@
 	var validate={};
 	function checkAll(arr){
 		for(var i=0,len=arr.length;i<len;i++){
-			var item=document.getElementById(arr[i]['id']),
-				val=typeof String.prototype.trim !='undefined' ? item.value.trim() : item.value.replace(/(^\s*)|(\s*$)/g,""),
-				rules=arr[i]['items'],
-				title=arr[i]['title'],
-				res=check(val,title,rules);
+			res=check(arr[i]);
 			if(res.error) return res;
 		}
 		return {"error":0};
 	}
 
+	// trim
+	function trim(str){
+		return str.trim ? str.trim() : str.replace(/(^\s*)|(\s*$)/g,"")
+	}
+
 	/*
 	*	rule类型: required RegExp Function 
 	*/
-	function check(val,title,rules){
+	function check(item){
+		var id=item.id
+		var val=trim(document.getElementById(id).value)
+		var title=item.title
+		var rules=item.items
 		for(var i=0,len=rules.length;i<len;i++){
 			var rule=rules[i]['rule'];
 			var msg=rules[i]['err'] || '不符合规则'
 			if(rule=='required'){
 				if(val==''){
-					return {"error":1,"title":title,"msg":msg};
+					return {"error":1,"id":id,"msg":title+msg};
 				}
 			}else if(rule instanceof RegExp){  // 正则
 				if(!rule.test(val)){
-					return {"error":1,"title":title,"msg":msg};
+					return {"error":1,"id":id,"msg":title+msg};
 				}
 			}else if(typeof rule=='function'){  // 函数，务必返回值
 				if(!rule(val)){
-					return {"error":1,"title":title,"msg":msg};
+					return {"error":1,"id":id,"msg":title+msg};
 				}
 			}	
 		}
 		return {"error":0};
 	}
 
+	// event
 	function addEvent(o,type,callback){
 		if(o.addEventListener){
 			o.addEventListener(type,callback,false);
@@ -50,6 +56,7 @@
 		}
 	}
 
+	// init
 	validate.init=function(opts){
 		var opts=opts || {};
 			formId=opts.formId || "",
@@ -72,21 +79,18 @@
 			}
 		});
 		for(var i=0;i<checkArr.length;i++){
-			var item=document.getElementById(checkArr[i].id),
-				title=checkArr[i].title,
-				rules=checkArr[i].items,
-				val,res;
-			(function(item,title,rules){
-				addEvent(item,'blur',function(e){
-					val=typeof String.prototype.trim !='undefined' ? item.value.trim() : item.value.replace(/(^\s*)|(\s*$)/g,"");
-					res=check(val,title,rules);
+			var item=checkArr[i];
+			var ipt=document.getElementById(item.id);
+			(function(o){
+				addEvent(ipt,'blur',function(e){
+					res=check(o);
 					if(res.error){
 						fall(res);
 					}else{
 						success()
 					}
 				})
-			})(item,title,rules);
+			})(item);
 		}
 	}
 
