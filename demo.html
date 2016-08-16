@@ -14,7 +14,7 @@
 	<script src="validate.js"></script>
 	<script>
 		var checkArr=[
-			{"id":"username","title":"用户名","items":[{rule:'required'},{rule:function(val){
+			{"id":"username","title":"用户名","items":[{rule:'required',err:"不能为空"},{rule:function(val){
 				return val.length>6;
 			},err:'小于6个字'}]},
 			{"id":"password","title":"密码","items":[{rule:'required',err:'不能为空'}]}

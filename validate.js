@@ -58,13 +58,15 @@
 
 	// init
 	validate.init=function(opts){
-		var opts=opts || {};
+		var opts=opts || {},
 			formId=opts.formId || "",
 			checkArr=opts.checkArr || [],
+			submit=opts.submit || 0,
 			success=opts.success || null,
+			pass=opts.pass || null,
 			fall=opts.fall || null;
-		var form=document.getElementById(formId);
-		addEvent(form,'submit',function(e){
+		var formBox=document.getElementById(formId);
+		addEvent(formBox,'submit',function(e){
 			var e=e || window.event;
 			if(e.preventDefault){
 				e.preventDefault();
@@ -72,10 +74,13 @@
 				e.returnValue=false;
 			}
 			var res=checkAll(checkArr);
-			if(!res.error && success){
-				form.submit();
-			}else{
+			if(res.error){
 				fall(res)
+			}else{
+				if(submit){
+					formBox.submit();
+				}
+				if(!!pass && typeof pass=='function') pass();  
 			}
 		});
 		for(var i=0;i<checkArr.length;i++){
@@ -86,7 +91,7 @@
 					res=check(o);
 					if(res.error){
 						fall(res);
-					}else{
+					}else if(!!success && typeof success=='function'){
 						success()
 					}
 				})
